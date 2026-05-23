@@ -41,10 +41,7 @@ const SaleModal = ({ show, onHide, idSelected = null, onClosedModal }) => {
   }, [saleSelected, error]);
 
   const handleSave = () => {
-    console.log({
-      selectedClient,
-      selectedProduct,
-    });
+    console.log("GUARDANDO LA DATA...");
 
     onHide();
   };
@@ -74,21 +71,13 @@ const SaleModal = ({ show, onHide, idSelected = null, onClosedModal }) => {
           </div>
         )}
 
-        {/* ========================= */}
-        {/* ERROR */}
-        {/* ========================= */}
-
         {error && <Alert variant="danger">Error al cargar venta</Alert>}
-
-        {/* ========================= */}
-        {/* SALE DETAIL */}
-        {/* ========================= */}
 
         {saleSelected && idSelected && !loading && (
           <SaleData saleSelected={saleSelected} />
         )}
 
-        {!idSelected && <NewSaleForm />}
+        {!idSelected && <NewSaleForm handleSave = {handleSave} />}
       </Modal.Body>
 
       <Modal.Footer>
@@ -96,11 +85,7 @@ const SaleModal = ({ show, onHide, idSelected = null, onClosedModal }) => {
           Cerrar
         </Button>
 
-        {!idSelected && (
-          <Button variant="primary" onClick={handleSave}>
-            Guardar
-          </Button>
-        )}
+        
       </Modal.Footer>
     </Modal>
   );

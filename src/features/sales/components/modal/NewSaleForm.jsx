@@ -1,42 +1,28 @@
 import { Form, Button, ListGroup, Spinner } from "react-bootstrap";
 import { useState } from "react";
-import { searchClients } from "../../services/clientService";
-import { searchProducts } from "../../services/productService";
+import ProductSearchModal from "./ProductSearchModal";
+import ClientSearchModal from "./ClientSearchModal";
 
-const NewSaleForm = () => {
+const NewSaleForm = ({ handleSave }) => {
+  const [showClientModal, setShowClientModal] = useState(false);
+  const [showProductModal, setShowProductModal] = useState(false);
   const [clientText, setClientText] = useState("");
   const [productText, setProductText] = useState("");
-  const [clients, setClients] = useState([]);
-  const [products, setProducts] = useState([]);
   const [selectedClient, setSelectedClient] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [loadingClient, setLoadingClient] = useState(false);
-  const [loadingProduct, setLoadingProduct] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [saleProducts, setSaleProducts] = useState([]);
 
-  const handleSearchClient = async () => {
-    try {
-      setLoadingClient(true);
-      const data = await searchClients(clientText);
-      setClients(data);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoadingClient(false);
-    }
+  // Manejar selección de cliente
+  const handleSelectClient = (client) => {
+    setSelectedClient(client);
+    setClientText(`${client.first_name} ${client.last_name} - ${client.email}`);
   };
 
-  const handleSearchProduct = async () => {
-    try {
-      setLoadingProduct(true);
-      const data = await searchProducts(productText);
-      setProducts(data);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoadingProduct(false);
-    }
+  // Manejar selección de producto
+  const handleSelectProduct = (product) => {
+    setSelectedProduct(product);
+    setProductText(`${product.name} - $${product.price}`);
   };
 
   const addProductToSale = () => {
@@ -46,10 +32,9 @@ const NewSaleForm = () => {
         {
           product: selectedProduct,
           quantity: quantity,
-          subtotal: selectedProduct.price * quantity
-        }
+          subtotal: selectedProduct.original_price * quantity,
+        },
       ]);
-      // Resetear después de agregar
       setSelectedProduct(null);
       setProductText("");
       setQuantity(1);
@@ -65,65 +50,45 @@ const NewSaleForm = () => {
   return (
     <Form>
       {/* CLIENTE */}
-      <Form.Group className="mb-4">
+      <Form.Group className="mb-1">
         <Form.Label>Cliente</Form.Label>
         <div className="d-flex gap-2">
           <Form.Control
             type="text"
-            placeholder="Buscar cliente"
+            placeholder="Cliente seleccionado aparecerá aquí"
             value={clientText}
-            onChange={(e) => setClientText(e.target.value)}
+            readOnly
           />
-          <Button onClick={handleSearchClient}>Buscar</Button>
+          <Button onClick={() => setShowClientModal(true)}>
+            Buscar Cliente
+          </Button>
         </div>
-
-        {loadingClient && (
-          <Spinner animation="border" size="sm" className="mt-2" />
+        {selectedClient && (
+          <Form.Text className="text-success">
+            ✓ Cliente seleccionado: {selectedClient.first_name} {selectedClient.last_name}
+          </Form.Text>
         )}
-
-        <ListGroup className="mt-2">
-          {clients.map((client) => (
-            <ListGroup.Item
-              key={client.id}
-              action
-              active={selectedClient?.id === client.id}
-              onClick={() => setSelectedClient(client)}
-            >
-              {client.first_name} {client.last_name}
-            </ListGroup.Item>
-          ))}
-        </ListGroup>
       </Form.Group>
 
       {/* PRODUCTO */}
-      <Form.Group className="mb-4">
+      <Form.Group className="mb-1">
         <Form.Label>Producto</Form.Label>
         <div className="d-flex gap-2">
           <Form.Control
             type="text"
-            placeholder="Buscar producto"
+            placeholder="Producto seleccionado aparecerá aquí"
             value={productText}
-            onChange={(e) => setProductText(e.target.value)}
+            readOnly
           />
-          <Button onClick={handleSearchProduct}>Buscar</Button>
+          <Button onClick={() => setShowProductModal(true)}>
+            Buscar Producto
+          </Button>
         </div>
-
-        {loadingProduct && (
-          <Spinner animation="border" size="sm" className="mt-2" />
+        {selectedProduct && (
+          <Form.Text className="text-success">
+            ✓ Producto seleccionado: {selectedProduct.name} - ${selectedProduct.original_price}
+          </Form.Text>
         )}
-
-        <ListGroup className="mt-2">
-          {products.map((product) => (
-            <ListGroup.Item
-              key={product.id}
-              action
-              active={selectedProduct?.id === product.id}
-              onClick={() => setSelectedProduct(product)}
-            >
-              {product.name} - ${product.price}
-            </ListGroup.Item>
-          ))}
-        </ListGroup>
       </Form.Group>
 
       {/* CANTIDAD Y AGREGAR */}
@@ -145,7 +110,7 @@ const NewSaleForm = () => {
         </Form.Group>
       )}
 
-      {/* TABLA DE PRODUCTOS AGREGADOS */}
+      {/* PRODUCTOS AGREGADOS */}
       {saleProducts.length > 0 && (
         <Form.Group className="mb-4">
           <Form.Label>Productos agregados</Form.Label>
@@ -160,8 +125,8 @@ const NewSaleForm = () => {
                       Cantidad: {item.quantity} x ${item.product.price} = ${item.subtotal}
                     </small>
                   </div>
-                  <Button 
-                    variant="danger" 
+                  <Button
+                    variant="danger"
                     size="sm"
                     onClick={() => removeProduct(index)}
                   >
@@ -176,6 +141,25 @@ const NewSaleForm = () => {
           </div>
         </Form.Group>
       )}
+
+      <div className="p-2 align-items-center">
+        <Button variant="primary" onClick={handleSave}>
+          Guardar
+        </Button>
+      </div>
+
+      {/* MODALES */}
+      <ClientSearchModal
+        show={showClientModal}
+        onHide={() => setShowClientModal(false)}
+        onSelectClient={handleSelectClient}
+      />
+
+      <ProductSearchModal
+        show={showProductModal}
+        onHide={() => setShowProductModal(false)}
+        onSelectProduct={handleSelectProduct}
+      />
     </Form>
   );
 };
