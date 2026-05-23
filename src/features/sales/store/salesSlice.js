@@ -1,6 +1,10 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-import { getSalesRequest, getSaleByIdRequest } from "../services/salesApi";
+import {
+  getSalesRequest,
+  getSaleByIdRequest,
+  createSaleRequest,
+} from "../services/salesApi";
 
 export const fetchSalesAsync = createAsyncThunk(
   "sales/fetchSales",
@@ -20,6 +24,18 @@ export const fetchSaleByIdAsync = createAsyncThunk(
   async (idSale, thunkAPI) => {
     try {
       return await getSaleByIdRequest(idSale);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data);
+    }
+  },
+);
+
+export const createSaleAsync = createAsyncThunk(
+  "sales/createSale",
+
+  async (saleData, thunkAPI) => {
+    try {
+      return await createSaleRequest(saleData);
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data);
     }
@@ -80,6 +96,11 @@ const salesSlice = createSlice({
         state.loading = false;
 
         state.error = action.payload;
+      })
+
+      //CREATE SALE
+      .addCase(createSaleAsync.fulfilled, (state, action) => {
+        state.sales.unshift(action.payload);
       });
   },
 });

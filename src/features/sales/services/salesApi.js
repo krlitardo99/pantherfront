@@ -19,4 +19,16 @@ export const getSaleByIdRequest = async (idSale) => {
 
   return response.data;
 };
+import axiosClient from "../../../services/axiosClient";
 
+export const createSaleRequest = async (
+  saleData
+) => {
+
+  const response = await axiosClientSales.post(
+    "/sales/",
+    saleData
+  );
+
+  return response.data;
+};

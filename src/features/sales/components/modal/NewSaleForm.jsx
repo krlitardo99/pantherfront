@@ -47,6 +47,54 @@ const NewSaleForm = ({ handleSave }) => {
     setSaleProducts(updated);
   };
 
+  const handleSubmit = () => {
+    if (!selectedClient) {
+      alert("Seleccione un cliente");
+
+      return;
+    }
+
+    if (saleProducts.length === 0) {
+      alert("Agregue productos");
+
+      return;
+    }
+
+    const subtotal = saleProducts.reduce((acc, item) => acc + item.subtotal, 0);
+
+    const payload = {
+      client: selectedClient.id,
+
+      city: 1,
+
+      subtotal_15: subtotal,
+
+      subtotal_0: 0,
+
+      tax_value: 0,
+
+      total: subtotal,
+
+      notes: "",
+
+      sales_detail: saleProducts.map((item) => ({
+        product: item.product.id,
+
+        quantity: item.quantity,
+
+        unit_price: item.product.original_price,
+
+        discount: 0,
+
+        tax: 0,
+      })),
+    };
+
+    console.log("PAYLOAD FINAL", payload);
+
+    handleSave(payload);
+  };
+
   return (
     <Form>
       {/* CLIENTE */}
@@ -65,7 +113,8 @@ const NewSaleForm = ({ handleSave }) => {
         </div>
         {selectedClient && (
           <Form.Text className="text-success">
-            ✓ Cliente seleccionado: {selectedClient.first_name} {selectedClient.last_name}
+            ✓ Cliente seleccionado: {selectedClient.first_name}{" "}
+            {selectedClient.last_name}
           </Form.Text>
         )}
       </Form.Group>
@@ -86,7 +135,8 @@ const NewSaleForm = ({ handleSave }) => {
         </div>
         {selectedProduct && (
           <Form.Text className="text-success">
-            ✓ Producto seleccionado: {selectedProduct.name} - ${selectedProduct.original_price}
+            ✓ Producto seleccionado: {selectedProduct.name} - $
+            {selectedProduct.original_price}
           </Form.Text>
         )}
       </Form.Group>
@@ -122,7 +172,8 @@ const NewSaleForm = ({ handleSave }) => {
                     <strong>{item.product.name}</strong>
                     <br />
                     <small>
-                      Cantidad: {item.quantity} x ${item.product.price} = ${item.subtotal}
+                      Cantidad: {item.quantity} x ${item.product.price} = $
+                      {item.subtotal}
                     </small>
                   </div>
                   <Button
@@ -137,13 +188,14 @@ const NewSaleForm = ({ handleSave }) => {
             ))}
           </ListGroup>
           <div className="mt-2 fw-bold">
-            Total: ${saleProducts.reduce((total, item) => total + item.subtotal, 0)}
+            Total: $
+            {saleProducts.reduce((total, item) => total + item.subtotal, 0)}
           </div>
         </Form.Group>
       )}
 
       <div className="p-2 align-items-center">
-        <Button variant="primary" onClick={handleSave}>
+        <Button variant="primary" onClick={handleSubmit}>
           Guardar
         </Button>
       </div>

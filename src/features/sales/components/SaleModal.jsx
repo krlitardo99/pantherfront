@@ -15,7 +15,7 @@ import SaleData from "./modal/SaleData";
 
 import { useDispatch, useSelector } from "react-redux";
 
-import { fetchSaleByIdAsync } from "../store/salesSlice";
+import { fetchSaleByIdAsync, createSaleAsync } from "../store/salesSlice";
 
 const SaleModal = ({ show, onHide, idSelected = null, onClosedModal }) => {
   const dispatch = useDispatch();
@@ -40,10 +40,11 @@ const SaleModal = ({ show, onHide, idSelected = null, onClosedModal }) => {
     }
   }, [saleSelected, error]);
 
-  const handleSave = () => {
-    console.log("GUARDANDO LA DATA...");
+  const handleSave = (saleData) => {
+    console.log("GUARDANDO LA DATA...", saleData);
+    dispatch(createSaleAsync(saleData));
 
-    onHide();
+    //onHide();
   };
 
   return (
@@ -77,15 +78,13 @@ const SaleModal = ({ show, onHide, idSelected = null, onClosedModal }) => {
           <SaleData saleSelected={saleSelected} />
         )}
 
-        {!idSelected && <NewSaleForm handleSave = {handleSave} />}
+        {!idSelected && <NewSaleForm handleSave={handleSave} />}
       </Modal.Body>
 
       <Modal.Footer>
         <Button variant="secondary" onClick={onHide}>
           Cerrar
         </Button>
-
-        
       </Modal.Footer>
     </Modal>
   );
