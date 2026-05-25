@@ -115,6 +115,7 @@ const SaleModal = ({ show, onHide, idSelected = null, onClosedModal }) => {
       </Modal.Body>
 
       <Modal.Footer>
+        
         <Button variant="secondary" onClick={onHide}>
           Cerrar
         </Button>
