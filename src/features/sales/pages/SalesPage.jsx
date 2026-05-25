@@ -8,12 +8,11 @@ import { Spinner, Alert, Button } from "react-bootstrap";
 
 import { useDispatch, useSelector } from "react-redux";
 
-import { fetchSalesAsync } from "../store/salesSlice";
+import { fetchSalesAsync, deleteSaleAsync} from "../store/salesSlice";
 
 import SearchBar from "../../../components/common/SearchBar";
 
 import filterSales from "../utils/filterSales";
-
 
 const SalesPage = () => {
   const dispatch = useDispatch();
@@ -47,13 +46,27 @@ const SalesPage = () => {
   const showNewSaleModal = () => {
     setIdSaleSelected(null);
     setShowSaleModal(true);
-    console.log("se ejecuto nw sale moodal")
+    console.log("se ejecuto nw sale moodal");
   };
-  
+
   const showSaleDetail = (id) => {
     setIdSaleSelected(id);
     setShowSaleModal(true);
     console.log("Data recibida del hijo:", id);
+  };
+
+  const deleteSale = async (id) => {
+    const confirmDelete = window.confirm("¿Eliminar esta venta?");
+
+    if (!confirmDelete) return;
+
+    const response = await dispatch(deleteSaleAsync(id));
+
+    if (response.meta.requestStatus === "fulfilled") {
+      alert("Venta eliminada");
+    } else {
+      alert("Error eliminando");
+    }
   };
 
   const closeModal = () => {
@@ -61,7 +74,7 @@ const SalesPage = () => {
   };
   const cleanIdModal = () => {
     setIdSaleSelected(null);
-  }
+  };
   if (loading) {
     return <Spinner animation="border" />;
   }
@@ -93,12 +106,18 @@ const SalesPage = () => {
         </div>
       </div>
 
-      <SalesTable sales={filteredSales} onViewSale={showSaleDetail} />
+      <SalesTable
+        sales={filteredSales}
+        onViewSale={showSaleDetail}
+        onDeleteSale={deleteSale}
+      />
 
-      <SaleModal show={showSaleModal} 
-        onHide={closeModal} 
+      <SaleModal
+        show={showSaleModal}
+        onHide={closeModal}
         onClosedModal={cleanIdModal}
-        idSelected={idSaleSelected}  />
+        idSelected={idSaleSelected}
+      />
     </div>
   );
 };

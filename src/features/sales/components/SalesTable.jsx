@@ -1,7 +1,7 @@
 import { Table, Spinner, Alert, Button } from "react-bootstrap";
 
 
-const SalesTable = ({ sales, onViewSale }) => {
+const SalesTable = ({ sales, onViewSale, onDeleteSale }) => {
   
   if (!sales) {
     return <Alert variant="alert">Sin ventas todavia.</Alert>;
@@ -53,7 +53,7 @@ const SalesTable = ({ sales, onViewSale }) => {
                
                 <Button
                   className="btn-danger"
-                  onClick={() => onViewSale(sale.id)}
+                  onClick={() => onDeleteSale(sale.id)}
                 >
                   Eliminar
                 </Button>

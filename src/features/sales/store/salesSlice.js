@@ -6,6 +6,7 @@ import {
   createSaleRequest,
   updateSalesDetail,
   deleteSalesDetail,
+  deleteSale,
 } from "../services/salesApi";
 
 export const fetchSalesAsync = createAsyncThunk(
@@ -49,7 +50,7 @@ export const updateSalesDetailAsync = createAsyncThunk(
 
   async ({ id, data }, thunkAPI) => {
     try {
-      return await updateSalesDetailRequest(id, data);
+      return await updateSalesDetail(id, data);
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data);
     }
@@ -60,7 +61,21 @@ export const deleteSalesDetailAsync = createAsyncThunk(
 
   async (id, thunkAPI) => {
     try {
-      await deleteSalesDetailRequest(id);
+      await deleteSalesDetail(id);
+
+      return id;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data);
+    }
+  },
+);
+
+export const deleteSaleAsync = createAsyncThunk(
+  "sales/deleteSale",
+
+  async (id, thunkAPI) => {
+    try {
+      await deleteSale(id);
 
       return id;
     } catch (error) {
@@ -136,6 +151,12 @@ const salesSlice = createSlice({
 
       .addCase(deleteSalesDetailAsync.fulfilled, (state) => {
         state.loading = false;
+      })
+
+      .addCase(deleteSaleAsync.fulfilled, (state, action) => {
+        state.loading = false;
+
+        state.sales = state.sales.filter((sale) => sale.id !== action.payload);
       });
   },
 });

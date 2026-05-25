@@ -19,7 +19,7 @@ export const getSaleByIdRequest = async (idSale) => {
 
   return response.data;
 };
-import axiosClient from "../../../services/axiosClient";
+
 
 export const createSaleRequest = async (
   saleData
@@ -33,53 +33,34 @@ export const createSaleRequest = async (
   return response.data;
 };
 
-export const updateSalesDetail = (
+
+export const updateSalesDetail = async (
   id,
   data
-) => async (dispatch) => {
+) => {
 
-  try {
+  const response = await axiosClientSales.patch(
+    `/sales_detail/${id}/`,
+    data
+  );
 
-    const response = await axiosClientSales.patch(
-      `/sales-detail/${id}/`,
-      data
-    );
-
-    return {
-      success: true,
-      data: response.data,
-    };
-
-  } catch (error) {
-
-    console.log(error);
-
-    return {
-      success: false,
-    };
-
-  }
+  return response.data;
 };
 
-export const deleteSalesDetail = (id) => async (dispatch) => {
+export const deleteSalesDetail = async (id) => {
 
-  try {
+  const response = await axiosClientSales.delete(
+    `/sales_detail/${id}/`
+  );
 
-    await axiosClientSales.delete(
-      `/sales-detail/${id}/`
-    );
+  return response.data;
+};
 
-    return {
-      success: true,
-    };
+export const deleteSale = async (id) => {
 
-  } catch (error) {
+  const response = await axiosClientSales.delete(
+    `/sales/${id}/`
+  );
 
-    console.log(error);
-
-    return {
-      success: false,
-    };
-
-  }
+  return response.data;
 };
