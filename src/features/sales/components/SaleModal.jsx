@@ -15,7 +15,8 @@ import SaleData from "./modal/SaleData";
 
 import { useDispatch, useSelector } from "react-redux";
 
-import { fetchSaleByIdAsync, createSaleAsync } from "../store/salesSlice";
+import { fetchSaleByIdAsync, createSaleAsync, updateSalesDetailAsync,
+  deleteSalesDetailAsync } from "../store/salesSlice";
 
 const SaleModal = ({ show, onHide, idSelected = null, onClosedModal }) => {
   const dispatch = useDispatch();
@@ -46,6 +47,34 @@ const SaleModal = ({ show, onHide, idSelected = null, onClosedModal }) => {
 
     //onHide();
   };
+  const handleEdit = () => {
+    console.log("EDITANDO...");
+    
+  };
+  const handleDelete = async (detail) => {
+
+  const confirmDelete = window.confirm(
+    `¿Eliminar ${detail.product_data?.name}?`
+  );
+
+  if (!confirmDelete) return;
+
+  const response = await dispatch(
+    deleteSalesDetailAsync(detail.id)
+  );
+
+  if (response.meta.requestStatus === "fulfilled") {
+
+    dispatch(
+      fetchSaleByIdAsync(idSelected)
+    );
+
+  } else {
+
+    alert("Error eliminando");
+
+  }
+};
 
   return (
     <Modal
@@ -75,7 +104,11 @@ const SaleModal = ({ show, onHide, idSelected = null, onClosedModal }) => {
         {error && <Alert variant="danger">Error al cargar venta</Alert>}
 
         {saleSelected && idSelected && !loading && (
-          <SaleData saleSelected={saleSelected} />
+          <SaleData
+            saleSelected={saleSelected}
+            onEditDetail={handleEdit}
+            onDeleteDetail={handleDelete}
+          />
         )}
 
         {!idSelected && <NewSaleForm handleSave={handleSave} />}

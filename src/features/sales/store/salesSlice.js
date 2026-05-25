@@ -4,6 +4,8 @@ import {
   getSalesRequest,
   getSaleByIdRequest,
   createSaleRequest,
+  updateSalesDetail,
+  deleteSalesDetail,
 } from "../services/salesApi";
 
 export const fetchSalesAsync = createAsyncThunk(
@@ -36,6 +38,31 @@ export const createSaleAsync = createAsyncThunk(
   async (saleData, thunkAPI) => {
     try {
       return await createSaleRequest(saleData);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data);
+    }
+  },
+);
+
+export const updateSalesDetailAsync = createAsyncThunk(
+  "sales/updateSalesDetail",
+
+  async ({ id, data }, thunkAPI) => {
+    try {
+      return await updateSalesDetailRequest(id, data);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data);
+    }
+  },
+);
+export const deleteSalesDetailAsync = createAsyncThunk(
+  "sales/deleteSalesDetail",
+
+  async (id, thunkAPI) => {
+    try {
+      await deleteSalesDetailRequest(id);
+
+      return id;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data);
     }
@@ -101,6 +128,14 @@ const salesSlice = createSlice({
       //CREATE SALE
       .addCase(createSaleAsync.fulfilled, (state, action) => {
         state.sales.unshift(action.payload);
+      })
+
+      .addCase(updateSalesDetailAsync.fulfilled, (state) => {
+        state.loading = false;
+      })
+
+      .addCase(deleteSalesDetailAsync.fulfilled, (state) => {
+        state.loading = false;
       });
   },
 });

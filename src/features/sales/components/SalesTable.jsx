@@ -45,10 +45,17 @@ const SalesTable = ({ sales, onViewSale }) => {
               <td>${sale.total}</td>
               <td>
                 <Button
-                  className="btn-primary"
+                  className="btn-primary mx-2"
                   onClick={() => onViewSale(sale.id)}
                 >
                   Ver
+                </Button>
+               
+                <Button
+                  className="btn-danger"
+                  onClick={() => onViewSale(sale.id)}
+                >
+                  Eliminar
                 </Button>
               </td>
             </tr>

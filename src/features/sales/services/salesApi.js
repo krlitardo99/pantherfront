@@ -32,3 +32,54 @@ export const createSaleRequest = async (
 
   return response.data;
 };
+
+export const updateSalesDetail = (
+  id,
+  data
+) => async (dispatch) => {
+
+  try {
+
+    const response = await axiosClientSales.patch(
+      `/sales-detail/${id}/`,
+      data
+    );
+
+    return {
+      success: true,
+      data: response.data,
+    };
+
+  } catch (error) {
+
+    console.log(error);
+
+    return {
+      success: false,
+    };
+
+  }
+};
+
+export const deleteSalesDetail = (id) => async (dispatch) => {
+
+  try {
+
+    await axiosClientSales.delete(
+      `/sales-detail/${id}/`
+    );
+
+    return {
+      success: true,
+    };
+
+  } catch (error) {
+
+    console.log(error);
+
+    return {
+      success: false,
+    };
+
+  }
+};
