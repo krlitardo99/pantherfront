@@ -47,6 +47,19 @@ export const updateSalesDetail = async (
   return response.data;
 };
 
+export const updateSale = async (
+  id,
+  data
+) => {
+
+  const response = await axiosClientSales.patch(
+    `/sales/${id}/`,
+    data
+  );
+
+  return response.data;
+};
+
 export const deleteSalesDetail = async (id) => {
 
   const response = await axiosClientSales.delete(

@@ -7,6 +7,7 @@ import {
   updateSalesDetail,
   deleteSalesDetail,
   deleteSale,
+  updateSale
 } from "../services/salesApi";
 
 export const fetchSalesAsync = createAsyncThunk(
@@ -84,6 +85,29 @@ export const deleteSaleAsync = createAsyncThunk(
   },
 );
 
+export const updateSaleAsync = createAsyncThunk(
+  "sales/updateSale",
+
+  async ({ id, data }, thunkAPI) => {
+
+    try {
+
+      return await updateSale(
+        id,
+        data
+      );
+
+    } catch (error) {
+
+      return thunkAPI.rejectWithValue(
+        error.response?.data
+      );
+
+    }
+
+  },
+);
+
 const salesSlice = createSlice({
   name: "sales",
 
@@ -157,6 +181,22 @@ const salesSlice = createSlice({
         state.loading = false;
 
         state.sales = state.sales.filter((sale) => sale.id !== action.payload);
+      })
+
+      .addCase(updateSaleAsync.pending, (state) => {
+        state.loading = true;
+      })
+
+      .addCase(updateSaleAsync.fulfilled, (state, action) => {
+        state.loading = false;
+
+        state.saleSelected = action.payload;
+      })
+
+      .addCase(updateSaleAsync.rejected, (state, action) => {
+        state.loading = false;
+
+        state.error = action.payload;
       });
   },
 });

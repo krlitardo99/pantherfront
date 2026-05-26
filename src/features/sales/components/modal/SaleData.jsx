@@ -28,25 +28,40 @@ const SaleData = ({ saleSelected, onEditDetail, onDeleteDetail }) => {
   };
 
   const onDeleteNewProduct = (detailToDelete) => {
+    const confirmDelete = window.confirm(
+      `¿Eliminar ${detailToDelete.product_data?.name}?`,
+    );
 
-  const confirmDelete = window.confirm(
-    `¿Eliminar ${detailToDelete.product_data?.name}?`
-  );
+    if (!confirmDelete) return;
 
-  if (!confirmDelete) return;
+    setNewProducts((prev) =>
+      prev.filter((detail) => detail !== detailToDelete),
+    );
 
-  setNewProducts((prev) =>
-    prev.filter(
-      (detail) => detail !== detailToDelete
-    )
-  );
+    setTotal((prev) => Number(prev) - Number(detailToDelete.subtotal));
+  };
+  const handleSaveChanges = () => {
+    const data = {
+      total: total,
+      client: saleSelected.client,
 
-  setTotal((prev) =>
-    Number(prev) -
-    Number(detailToDelete.subtotal)
-  );
+      city: saleSelected.city,
 
-};
+      new_products: newProducts.map((detail) => ({
+        product: detail.product_data.id,
+
+        quantity: Number(detail.quantity),
+
+        unit_price: Number(detail.unit_price),
+
+        tax: Number(detail.tax),
+      })),
+    };
+
+    console.log("DATOS A ENVIAR", saleSelected.id, data);
+
+    onEditDetail(saleSelected.id, data);
+  };
 
   useEffect(() => {
     if (selectedProduct) {
@@ -200,11 +215,7 @@ const SaleData = ({ saleSelected, onEditDetail, onDeleteDetail }) => {
 
                     <td>
                       <div className="d-flex justify-content-center gap-2">
-                        <Button
-                          variant="warning"
-                          size="sm"
-                          onClick={() => onEditDetail(detail)}
-                        >
+                        <Button variant="warning" size="sm">
                           Editar
                         </Button>
 
@@ -241,7 +252,12 @@ const SaleData = ({ saleSelected, onEditDetail, onDeleteDetail }) => {
                     <td>${detail.tax}</td>
 
                     <td>
-                      <Button onClick={() => onDeleteNewProduct(detail)} className="ml-2" size="sm" variant="danger">
+                      <Button
+                        onClick={() => onDeleteNewProduct(detail)}
+                        className="ml-2"
+                        size="sm"
+                        variant="danger"
+                      >
                         Eliminar
                       </Button>
                     </td>
@@ -253,7 +269,12 @@ const SaleData = ({ saleSelected, onEditDetail, onDeleteDetail }) => {
         </Card.Body>
 
         <Card.Footer className="text-center mb-4">
-          <Button className="mt-4" size="md" variant="warning">
+          <Button
+            onClick={() => handleSaveChanges()}
+            className="mt-4"
+            size="md"
+            variant="warning"
+          >
             Guardar cambios
           </Button>
         </Card.Footer>

@@ -15,8 +15,14 @@ import SaleData from "./modal/SaleData";
 
 import { useDispatch, useSelector } from "react-redux";
 
-import { fetchSaleByIdAsync, createSaleAsync, updateSalesDetailAsync,
-  deleteSalesDetailAsync } from "../store/salesSlice";
+import {
+  fetchSaleByIdAsync,
+  fetchSalesAsync,
+  createSaleAsync,
+  updateSalesDetailAsync,
+  deleteSalesDetailAsync,
+  updateSaleAsync,
+} from "../store/salesSlice";
 
 const SaleModal = ({ show, onHide, idSelected = null, onClosedModal }) => {
   const dispatch = useDispatch();
@@ -47,34 +53,47 @@ const SaleModal = ({ show, onHide, idSelected = null, onClosedModal }) => {
 
     //onHide();
   };
-  const handleEdit = () => {
-    console.log("EDITANDO...");
-    
-  };
-  const handleDelete = async (detail) => {
+  const handleEdit = async (idSale, data) => {
+    const response = await dispatch(
+      updateSaleAsync({
+        id: idSale,
 
-  const confirmDelete = window.confirm(
-    `¿Eliminar ${detail.product_data?.name}?`
-  );
-
-  if (!confirmDelete) return;
-
-  const response = await dispatch(
-    deleteSalesDetailAsync(detail.id)
-  );
-
-  if (response.meta.requestStatus === "fulfilled") {
-
-    dispatch(
-      fetchSaleByIdAsync(idSelected)
+        data: data,
+      }),
     );
 
-  } else {
+    if (response.meta.requestStatus === "fulfilled") {
+      alert("Venta actualizada");
 
-    alert("Error eliminando");
+     
 
-  }
-};
+    // RECARGAR TABLA
+    dispatch(
+      fetchSalesAsync()
+    );
+
+
+      
+    } else {
+      alert("Error actualizando");
+    }
+  };
+
+  const handleDelete = async (detail) => {
+    const confirmDelete = window.confirm(
+      `¿Eliminar ${detail.product_data?.name}?`,
+    );
+
+    if (!confirmDelete) return;
+
+    const response = await dispatch(deleteSalesDetailAsync(detail.id));
+
+    if (response.meta.requestStatus === "fulfilled") {
+      dispatch(fetchSaleByIdAsync(idSelected));
+    } else {
+      alert("Error eliminando");
+    }
+  };
 
   return (
     <Modal
@@ -115,7 +134,6 @@ const SaleModal = ({ show, onHide, idSelected = null, onClosedModal }) => {
       </Modal.Body>
 
       <Modal.Footer>
-        
         <Button variant="secondary" onClick={onHide}>
           Cerrar
         </Button>

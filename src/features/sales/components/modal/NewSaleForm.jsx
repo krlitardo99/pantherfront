@@ -60,7 +60,7 @@ const NewSaleForm = ({ handleSave }) => {
       return;
     }
 
-    const subtotal = saleProducts.reduce((acc, item) => acc + item.subtotal, 0);
+    const subtotal = Number(saleProducts.reduce((acc, item) => acc + item.subtotal, 0).toFixed(2));
 
     const payload = {
       client: selectedClient.id,
@@ -77,7 +77,7 @@ const NewSaleForm = ({ handleSave }) => {
 
       notes: "",
 
-      sales_detail: saleProducts.map((item) => ({
+      sales_detail_data: saleProducts.map((item) => ({
         product: item.product.id,
 
         quantity: item.quantity,
