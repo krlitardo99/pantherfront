@@ -65,15 +65,8 @@ const SaleModal = ({ show, onHide, idSelected = null, onClosedModal }) => {
     if (response.meta.requestStatus === "fulfilled") {
       alert("Venta actualizada");
 
-     
-
-    // RECARGAR TABLA
-    dispatch(
-      fetchSalesAsync()
-    );
-
-
-      
+      // RECARGAR TABLA
+      dispatch(fetchSalesAsync());
     } else {
       alert("Error actualizando");
     }
@@ -96,49 +89,51 @@ const SaleModal = ({ show, onHide, idSelected = null, onClosedModal }) => {
   };
 
   return (
-    <Modal
-      show={show}
-      onHide={onHide}
-      onExited={onClosedModal}
-      centered
-      size="lg"
-    >
-      <Modal.Header closeButton>
-        <Modal.Title>
-          {idSelected ? "Detalle de Venta" : "Nueva Venta"}
-        </Modal.Title>
-      </Modal.Header>
+    
+      <Modal
+        show={show}
+        onHide={onHide}
+        onExited={onClosedModal}
+        centered
+        size="lg"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>
+            {idSelected ? "Detalle de Venta" : "Nueva Venta"}
+          </Modal.Title>
+        </Modal.Header>
 
-      <Modal.Body>
-        {/* ========================= */}
-        {/* LOADING */}
-        {/* ========================= */}
+        <Modal.Body>
+          {/* ========================= */}
+          {/* LOADING */}
+          {/* ========================= */}
 
-        {loading && (
-          <div className="text-center">
-            <Spinner animation="border" />
-          </div>
-        )}
+          {loading && (
+            <div className="text-center">
+              <Spinner animation="border" />
+            </div>
+          )}
 
-        {error && <Alert variant="danger">Error al cargar venta</Alert>}
+          {error && <Alert variant="danger">Error al cargar venta</Alert>}
 
-        {saleSelected && idSelected && !loading && (
-          <SaleData
-            saleSelected={saleSelected}
-            onEditSale={handleEdit}
-            onDeleteDetail={handleDelete}
-          />
-        )}
+          {saleSelected && idSelected && !loading && (
+            <SaleData
+              saleSelected={saleSelected}
+              onEditSale={handleEdit}
+              onDeleteDetail={handleDelete}
+            />
+          )}
 
-        {!idSelected && <NewSaleForm handleSave={handleSave} />}
-      </Modal.Body>
+          {!idSelected && <NewSaleForm handleSave={handleSave} />}
+        </Modal.Body>
 
-      <Modal.Footer>
-        <Button variant="secondary" onClick={onHide}>
-          Cerrar
-        </Button>
-      </Modal.Footer>
-    </Modal>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={onHide}>
+            Cerrar
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    
   );
 };
 

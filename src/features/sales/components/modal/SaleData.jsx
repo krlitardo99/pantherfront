@@ -6,12 +6,12 @@ import { useState, useEffect } from "react";
 
 import EditDetailSale from "./EditDetailSale";
 
+import ClientSearchModal from "./ClientSearchModal";
+
 const SaleData = ({ saleSelected, onEditSale, onDeleteDetail }) => {
   const [showProductModal, setShowProductModal] = useState(false);
 
   const [productText, setProductText] = useState("");
-
-  const [selectedClient, setSelectedClient] = useState(null);
 
   const [selectedProduct, setSelectedProduct] = useState(null);
 
@@ -27,6 +27,19 @@ const SaleData = ({ saleSelected, onEditSale, onDeleteDetail }) => {
 
   const [detailsData, setDetailsData] = useState([]);
 
+  const [showClientModal, setShowClientModal] = useState(false);
+
+  const [clientText, setClientText] = useState("");
+
+  const [selectedClient, setSelectedClient] = useState(null);
+
+  const [clientName, setClientName] = useState("");
+
+  const handleSelectClient = (client) => {
+    setSelectedClient(client);
+    setClientName(`${client.last_name} ${client.first_name}`);
+  };
+
   const openEditModal = (detail) => {
     setDetailSelected(detail);
 
@@ -40,10 +53,9 @@ const SaleData = ({ saleSelected, onEditSale, onDeleteDetail }) => {
   const sendEditedData = (data) => {
     setDetailsData((prev) =>
       prev.map((detail) => {
-        const sameItem =
-  detail.id
-    ? detail.id === data.id
-    : detail.tempId === data.tempId;
+        const sameItem = detail.id
+          ? detail.id === data.id
+          : detail.tempId === data.tempId;
 
         if (sameItem) {
           const subtotal =
@@ -51,6 +63,8 @@ const SaleData = ({ saleSelected, onEditSale, onDeleteDetail }) => {
 
           return {
             ...detail,
+
+            client: selectedClient,
 
             product: data.product_data.id,
 
@@ -93,16 +107,19 @@ const SaleData = ({ saleSelected, onEditSale, onDeleteDetail }) => {
   const handleSaveChanges = () => {
     const data = {
       total: total,
-      client: saleSelected.client,
+
+       client: selectedClient
+      ? selectedClient.id
+      : saleSelected.client,
 
       city: saleSelected.city,
 
-      new_products: newProducts.map((detail) => ({
+      sales_detail: detailsData.map((detail) => ({
+        id: detail.id,
+
         product: detail.product_data.id,
 
         quantity: Number(detail.quantity),
-
-        unit_price: Number(detail.unit_price),
 
         tax: Number(detail.tax),
       })),
@@ -123,7 +140,15 @@ const SaleData = ({ saleSelected, onEditSale, onDeleteDetail }) => {
     if (saleSelected?.sales_detail) {
       setDetailsData(saleSelected.sales_detail);
     }
+
+    if (saleSelected?.client_data) {
+      let name = saleSelected?.client_data?.last_name + " " +  saleSelected?.client_data?.first_name
+      setClientName(name)
+    }
+    
   }, [saleSelected]);
+
+   
 
   // const handleAddProduct = () => {
   //   if (!selectedProduct) return;
@@ -156,21 +181,21 @@ const SaleData = ({ saleSelected, onEditSale, onDeleteDetail }) => {
 
     const subtotal = Number(selectedProduct.original_price) * Number(quantity);
 
- const newDetail = {
-  tempId: Date.now(),
+    const newDetail = {
+      tempId: Date.now(),
 
-  product_data: selectedProduct,
+      product_data: selectedProduct,
 
-  product: selectedProduct.id,
+      product: selectedProduct.id,
 
-  quantity: Number(quantity),
+      quantity: Number(quantity),
 
-  subtotal: subtotal,
+      subtotal: subtotal,
 
-  tax: 0,
+      tax: 0,
 
-  isNew: true,
-};
+      isNew: true,
+    };
 
     setDetailsData((prev) => [...prev, newDetail]);
 
@@ -180,6 +205,8 @@ const SaleData = ({ saleSelected, onEditSale, onDeleteDetail }) => {
 
     setQuantity(1);
   };
+
+ 
 
   return (
     <>
@@ -195,10 +222,21 @@ const SaleData = ({ saleSelected, onEditSale, onDeleteDetail }) => {
 
               <hr></hr>
 
-              <p className="mb-2">
-                <strong>Cliente:</strong> {saleSelected.client_data?.first_name}{" "}
-                {saleSelected.client_data?.last_name}
-              </p>
+              <div className="mb-2 col">
+                <div className="row">
+                  <div className="col">
+                    <strong>Cliente:</strong> {clientName}
+                  </div>
+                  <div className="col">
+                    <Button
+                      onClick={() => setShowClientModal(true)}
+                      variant="warning"
+                    >
+                      Editar
+                    </Button>
+                  </div>
+                </div>
+              </div>
 
               <p className="mb-0">
                 <strong>Ciudad:</strong> {saleSelected.city_data?.name}
@@ -396,6 +434,12 @@ const SaleData = ({ saleSelected, onEditSale, onDeleteDetail }) => {
         show={showProductModal}
         onHide={() => setShowProductModal(false)}
         onSelectProduct={handleSelectProduct}
+      />
+
+      <ClientSearchModal
+        show={showClientModal}
+        onHide={() => setShowClientModal(false)}
+        onSelectClient={handleSelectClient}
       />
 
       <EditDetailSale
