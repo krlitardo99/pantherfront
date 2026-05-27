@@ -82,8 +82,6 @@ const NewSaleForm = ({ handleSave }) => {
 
         quantity: item.quantity,
 
-        unit_price: item.product.original_price,
-
         discount: 0,
 
         tax: 0,

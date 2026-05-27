@@ -79,8 +79,6 @@ const SaleData = ({ saleSelected, onEditDetail, onDeleteDetail }) => {
 
       quantity,
 
-      unit_price: selectedProduct.original_price,
-
       subtotal: subtotal,
 
       tax: 0,
@@ -190,9 +188,11 @@ const SaleData = ({ saleSelected, onEditDetail, onDeleteDetail }) => {
 
                   <th>Cantidad</th>
 
-                  <th>Precio</th>
+                  <th>Precio Unitario</th>
 
                   <th>Impuesto</th>
+
+                  <th>Subtotal</th>
 
                   <th className="text-center">Acciones</th>
                 </tr>
@@ -212,6 +212,8 @@ const SaleData = ({ saleSelected, onEditDetail, onDeleteDetail }) => {
                     <td>${detail.product_data?.original_price}</td>
 
                     <td>${detail.tax}</td>
+
+                    <td>${detail.subtotal}</td>
 
                     <td>
                       <div className="d-flex justify-content-center gap-2">
@@ -247,19 +249,26 @@ const SaleData = ({ saleSelected, onEditDetail, onDeleteDetail }) => {
                       <Badge bg="success">{detail.quantity}</Badge>
                     </td>
 
-                    <td>${detail.subtotal}</td>
+                    <td>${detail.product_data?.original_price}</td>
 
                     <td>${detail.tax}</td>
 
+                    <td>${detail.subtotal}</td>
+
                     <td>
-                      <Button
-                        onClick={() => onDeleteNewProduct(detail)}
-                        className="ml-2"
-                        size="sm"
-                        variant="danger"
-                      >
-                        Eliminar
-                      </Button>
+                      <div className="d-flex justify-content-center gap-2">
+                        <Button variant="warning" size="sm">
+                          Editar
+                        </Button>
+
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          onClick={() => onDeleteNewProduct(detail)}
+                        >
+                          Eliminar
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))}
