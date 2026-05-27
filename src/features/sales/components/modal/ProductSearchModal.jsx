@@ -27,7 +27,7 @@ const ProductSearchModal = ({ show, onHide, onSelectProduct }) => {
   };
 
   return (
-    <Modal show={show} onHide={onHide} centered size="lg">
+    <Modal show={show} onHide={onHide} centered size="md">
       <Modal.Header closeButton>
         <Modal.Title>Buscar Producto</Modal.Title>
       </Modal.Header>

@@ -8,7 +8,7 @@ import { Spinner, Alert, Button } from "react-bootstrap";
 
 import { useDispatch, useSelector } from "react-redux";
 
-import { fetchSalesAsync, deleteSaleAsync} from "../store/salesSlice";
+import { fetchSalesAsync, deleteSaleAsync } from "../store/salesSlice";
 
 import SearchBar from "../../../components/common/SearchBar";
 
@@ -25,6 +25,10 @@ const SalesPage = () => {
 
   const [idSaleSelected, setIdSaleSelected] = useState(null);
 
+  const [dateFrom, setDateFrom] = useState("");
+
+  const [dateTo, setDateTo] = useState("");
+
   const { sales, loading, error } = useSelector((state) => state.sales);
 
   useEffect(() => {
@@ -35,12 +39,65 @@ const SalesPage = () => {
     setFilteredSales(sales);
   }, [sales]);
 
+  useEffect(() => {
+
+  handleSearch(searchText);
+
+}, [sales, dateFrom, dateTo]);
+
+  // const handleSearch = (text) => {
+  //   filterSales({
+  //     sales,
+  //     searchText: text,
+  //     setFilteredSales,
+  //   });
+  // };
+
   const handleSearch = (text) => {
-    filterSales({
-      sales,
-      searchText: text,
-      setFilteredSales,
-    });
+    let filtered = [...sales];
+
+    // BUSCADOR NORMAL
+    if (text.trim()) {
+      filtered = filtered.filter((sale) => {
+        const fullName =
+          `${sale.client_data?.last_name} ${sale.client_data?.first_name}`.toLowerCase();
+
+        return (
+          fullName.includes(text.toLowerCase()) ||
+          sale.client_data?.phone?.includes(text) ||
+          sale.client_data?.email?.toLowerCase().includes(text.toLowerCase()) ||
+          sale.city_data?.name?.toLowerCase().includes(text.toLowerCase()) ||
+          String(sale.number_invoice).includes(text)
+        );
+      });
+    }
+
+    // FILTRO DESDE
+    if (dateFrom) {
+      filtered = filtered.filter((sale) => {
+        const saleDate = new Date(sale.date_invoice);
+
+        const fromDate = new Date(dateFrom);
+
+        return saleDate >= fromDate;
+      });
+    }
+
+    // FILTRO HASTA
+    if (dateTo) {
+      filtered = filtered.filter((sale) => {
+        const saleDate = new Date(sale.date_invoice);
+
+        const toDate = new Date(dateTo);
+
+        // FINAL DEL DIA
+        toDate.setHours(23, 59, 59, 999);
+
+        return saleDate <= toDate;
+      });
+    }
+
+    setFilteredSales(filtered);
   };
 
   const showNewSaleModal = () => {
@@ -96,13 +153,57 @@ const SalesPage = () => {
       </div>
 
       <div className="row mb-3">
-        <div className="col-6">
+        <div className="col-4">
           <SearchBar
             searchText={searchText}
             setSearchText={setSearchText}
             onSearch={handleSearch}
             placeholder="Buscar ventas..."
           />
+        </div>
+
+        <div className="col-3">
+          <input
+            type="date"
+            className="form-control"
+            value={dateFrom}
+            onChange={(e) => {
+              setDateFrom(e.target.value);
+
+              handleSearch(searchText);
+            }}
+          />
+        </div>
+
+        <div className="col-3">
+          <input
+            type="date"
+            className="form-control"
+            value={dateTo}
+            onChange={(e) => {
+              setDateTo(e.target.value);
+
+              handleSearch(searchText);
+            }}
+          />
+        </div>
+
+        <div className="col-2">
+          <Button
+            variant="secondary"
+            className="w-100"
+            onClick={() => {
+              setDateFrom("");
+
+              setDateTo("");
+
+              setSearchText("");
+
+              setFilteredSales(sales);
+            }}
+          >
+            Limpiar
+          </Button>
         </div>
       </div>
 

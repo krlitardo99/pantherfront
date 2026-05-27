@@ -7,6 +7,22 @@ const SalesTable = ({ sales, onViewSale, onDeleteSale }) => {
     return <Alert variant="alert">Sin ventas todavia.</Alert>;
   }
 
+  const formatDate = (date) => {
+
+  if (!date) return "";
+
+  return new Date(date).toLocaleString(
+    "es-EC",
+    {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    }
+  );
+};
+
  
 
   return (
@@ -40,7 +56,7 @@ const SalesTable = ({ sales, onViewSale, onDeleteSale }) => {
 
               <td>{sale.city_data.name}</td>
 
-              <td>{sale.date_invoice ? sale.date_invoice : ""}</td>
+              <td>{formatDate(sale.date_invoice)}</td>
 
               <td>${sale.total}</td>
               <td>
