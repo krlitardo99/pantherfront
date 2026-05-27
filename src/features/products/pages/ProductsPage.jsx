@@ -12,9 +12,15 @@ import { Spinner, Alert, Button } from "react-bootstrap";
 
 import { useDispatch, useSelector } from "react-redux";
 
-import { fetchProductsAsync, deleteProductAsync } from "../store/productsSlice";
+import {
+  fetchProductsAsync,
+  deleteProductAsync,
+  createProductAsync,
+} from "../store/productsSlice";
 
 import SearchBar from "../../../components/common/SearchBar";
+
+import NewProductModal from "../components/modal/NewProductModal";
 
 //import filterProducts from "../utils/filterProducts";
 
@@ -48,44 +54,24 @@ const ProductsPage = () => {
   }, [products, dateFrom, dateTo]);
 
   const handleSearch = (text) => {
+    let filtered = [...products];
 
-  let filtered = [...products];
+    if (text.trim()) {
+      filtered = filtered.filter((product) => {
+        return (
+          product.name?.toLowerCase().includes(text.toLowerCase()) ||
+          product.description?.toLowerCase().includes(text.toLowerCase()) ||
+          product.barcode?.toLowerCase().includes(text.toLowerCase()) ||
+          String(product.stock).includes(text) ||
+          String(product.original_price).includes(text)
+        );
+      });
+    }
 
-  if (text.trim()) {
-
-    filtered = filtered.filter((product) => {
-
-      return (
-
-        product.name
-          ?.toLowerCase()
-          .includes(text.toLowerCase()) ||
-
-        product.description
-          ?.toLowerCase()
-          .includes(text.toLowerCase()) ||
-
-        product.barcode
-          ?.toLowerCase()
-          .includes(text.toLowerCase()) ||
-
-        String(product.stock)
-          .includes(text) ||
-
-        String(product.original_price)
-          .includes(text)
-      );
-    });
-  }
-
-  setFilteredProducts(filtered);
-};
-
-  const showNewProductModal = () => {
-    setIdProductSelected(null);
-    setShowProductModal(true);
-    console.log("se ejecuto nw sale moodal");
+    setFilteredProducts(filtered);
   };
+
+ 
 
   const showProductDetail = (product) => {
     setProductSelected(product);
@@ -105,6 +91,24 @@ const ProductsPage = () => {
     } else {
       alert("Error eliminando");
     }
+  };
+
+  const createProduct = async (data) => {
+    const response = await dispatch(createProductAsync(data));
+
+    if (response.meta.requestStatus === "fulfilled") {
+      alert("Producto creado");
+
+      setShowProductModal(false);
+    } else {
+      alert("Error creando producto");
+    }
+  };
+
+  const showNewProductModal = () => {
+    setProductSelected(null);
+
+    setShowProductModal(true);
   };
 
   const closeModal = () => {
@@ -168,12 +172,25 @@ const ProductsPage = () => {
         onDeleteProduct={deleteProduct}
       />
 
-      <ProductModal
-        show={showProductModal}
-        onHide={closeModal}
-        onClosedModal={cleanIdModal}
-        productSelected={productSelected}
-      />
+      {
+  productSelected ? (
+
+    <ProductModal
+      show={showProductModal}
+      onHide={closeModal}
+      productSelected={productSelected}
+    />
+
+  ) : (
+
+    <NewProductModal
+      show={showProductModal}
+      onHide={closeModal}
+      onSave={createProduct}
+    />
+
+  )
+}
     </div>
   );
 };
