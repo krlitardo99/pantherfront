@@ -4,7 +4,9 @@ import ProductSearchModal from "./ProductSearchModal";
 
 import { useState, useEffect } from "react";
 
-const SaleData = ({ saleSelected, onEditDetail, onDeleteDetail }) => {
+import EditDetailSale from "./EditDetailSale";
+
+const SaleData = ({ saleSelected, onEditSale, onDeleteDetail }) => {
   const [showProductModal, setShowProductModal] = useState(false);
 
   const [productText, setProductText] = useState("");
@@ -18,6 +20,54 @@ const SaleData = ({ saleSelected, onEditDetail, onDeleteDetail }) => {
   const [newProducts, setNewProducts] = useState([]);
 
   const [total, setTotal] = useState(Number(saleSelected.total));
+
+  const [showEditModal, setShowEditModal] = useState(false);
+
+  const [detailSelected, setDetailSelected] = useState(null);
+
+  const [detailsData, setDetailsData] = useState([]);
+
+  const openEditModal = (detail) => {
+    setDetailSelected(detail);
+
+    setShowEditModal(true);
+  };
+
+  const closeEditModal = () => {
+    setShowEditModal(false);
+  };
+
+  const sendEditedData = (data) => {
+    setDetailsData((prev) =>
+      prev.map((detail) => {
+        const sameItem =
+  detail.id
+    ? detail.id === data.id
+    : detail.tempId === data.tempId;
+
+        if (sameItem) {
+          const subtotal =
+            Number(data.quantity) * Number(data.product_data.original_price);
+
+          return {
+            ...detail,
+
+            product: data.product_data.id,
+
+            product_data: data.product_data,
+
+            quantity: Number(data.quantity),
+
+            subtotal: subtotal,
+          };
+        }
+
+        return detail;
+      }),
+    );
+
+    closeEditModal();
+  };
 
   const handleSelectProduct = (product) => {
     setSelectedProduct(product);
@@ -60,7 +110,7 @@ const SaleData = ({ saleSelected, onEditDetail, onDeleteDetail }) => {
 
     console.log("DATOS A ENVIAR", saleSelected.id, data);
 
-    onEditDetail(saleSelected.id, data);
+    onEditSale(saleSelected.id, data);
   };
 
   useEffect(() => {
@@ -69,24 +119,60 @@ const SaleData = ({ saleSelected, onEditDetail, onDeleteDetail }) => {
     }
   }, [selectedProduct]);
 
+  useEffect(() => {
+    if (saleSelected?.sales_detail) {
+      setDetailsData(saleSelected.sales_detail);
+    }
+  }, [saleSelected]);
+
+  // const handleAddProduct = () => {
+  //   if (!selectedProduct) return;
+
+  //   const subtotal = Number(selectedProduct.original_price) * Number(quantity);
+
+  //   const newDetail = {
+  //     product_data: selectedProduct,
+
+  //     quantity,
+
+  //     subtotal: subtotal,
+
+  //     tax: 0,
+
+  //     isNew: true,
+  //   };
+
+  //   setNewProducts((prev) => [...prev, newDetail]);
+
+  //   setTotal((prev) => Number(prev) + subtotal);
+
+  //   setSelectedProduct(null);
+
+  //   setQuantity(1);
+  // };
+
   const handleAddProduct = () => {
     if (!selectedProduct) return;
 
     const subtotal = Number(selectedProduct.original_price) * Number(quantity);
 
-    const newDetail = {
-      product_data: selectedProduct,
+ const newDetail = {
+  tempId: Date.now(),
 
-      quantity,
+  product_data: selectedProduct,
 
-      subtotal: subtotal,
+  product: selectedProduct.id,
 
-      tax: 0,
+  quantity: Number(quantity),
 
-      isNew: true,
-    };
+  subtotal: subtotal,
 
-    setNewProducts((prev) => [...prev, newDetail]);
+  tax: 0,
+
+  isNew: true,
+};
+
+    setDetailsData((prev) => [...prev, newDetail]);
 
     setTotal((prev) => Number(prev) + subtotal);
 
@@ -104,10 +190,10 @@ const SaleData = ({ saleSelected, onEditDetail, onDeleteDetail }) => {
           <div className="row">
             <div className="col">
               <h3 className="fw-bold mb-1">
-                Factura #{saleSelected.number_invoice}
+                Venta #{saleSelected.number_invoice}
               </h3>
 
-              <h5>Detalle de venta</h5>
+              <hr></hr>
 
               <p className="mb-2">
                 <strong>Cliente:</strong> {saleSelected.client_data?.first_name}{" "}
@@ -125,7 +211,7 @@ const SaleData = ({ saleSelected, onEditDetail, onDeleteDetail }) => {
               </Button>
             </div>
           </div>
-
+          <hr />
           {/* TOTAL */}
 
           <div className="py-1 mt-4 row text-end">
@@ -201,9 +287,16 @@ const SaleData = ({ saleSelected, onEditDetail, onDeleteDetail }) => {
               <tbody>
                 {/* PRODUCTOS EXISTENTES */}
 
-                {saleSelected.sales_detail?.map((detail) => (
-                  <tr key={detail.id}>
-                    <td className="fw-semibold">{detail.product_data?.name}</td>
+                {detailsData.map((detail, index) => (
+                  <tr key={index}>
+                    <td className="fw-semibold">
+                      {detail.isNew && (
+                        <Badge className="mx-1" bg="info">
+                          Nuevo
+                        </Badge>
+                      )}
+                      {detail.product_data?.name}
+                    </td>
 
                     <td>
                       <Badge bg="secondary">{detail.quantity}</Badge>
@@ -217,7 +310,11 @@ const SaleData = ({ saleSelected, onEditDetail, onDeleteDetail }) => {
 
                     <td>
                       <div className="d-flex justify-content-center gap-2">
-                        <Button variant="warning" size="sm">
+                        <Button
+                          variant="warning"
+                          size="sm"
+                          onClick={() => openEditModal(detail)}
+                        >
                           Editar
                         </Button>
 
@@ -233,7 +330,7 @@ const SaleData = ({ saleSelected, onEditDetail, onDeleteDetail }) => {
                   </tr>
                 ))}
 
-                {/* NUEVOS PRODUCTOS */}
+                {/* NUEVOS PRODUCTOS
 
                 {newProducts.map((detail, index) => (
                   <tr key={`new-${index}`}>
@@ -257,7 +354,11 @@ const SaleData = ({ saleSelected, onEditDetail, onDeleteDetail }) => {
 
                     <td>
                       <div className="d-flex justify-content-center gap-2">
-                        <Button variant="warning" size="sm">
+                        <Button
+                          variant="warning"
+                          size="sm"
+                          onClick={() => openEditModal(detail)}
+                        >
                           Editar
                         </Button>
 
@@ -271,7 +372,7 @@ const SaleData = ({ saleSelected, onEditDetail, onDeleteDetail }) => {
                       </div>
                     </td>
                   </tr>
-                ))}
+                ))} */}
               </tbody>
             </Table>
           </div>
@@ -295,6 +396,13 @@ const SaleData = ({ saleSelected, onEditDetail, onDeleteDetail }) => {
         show={showProductModal}
         onHide={() => setShowProductModal(false)}
         onSelectProduct={handleSelectProduct}
+      />
+
+      <EditDetailSale
+        show={showEditModal}
+        onHide={closeEditModal}
+        detailSelected={detailSelected}
+        sendEditedData={sendEditedData}
       />
     </>
   );

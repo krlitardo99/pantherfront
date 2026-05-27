@@ -125,7 +125,7 @@ const SaleModal = ({ show, onHide, idSelected = null, onClosedModal }) => {
         {saleSelected && idSelected && !loading && (
           <SaleData
             saleSelected={saleSelected}
-            onEditDetail={handleEdit}
+            onEditSale={handleEdit}
             onDeleteDetail={handleDelete}
           />
         )}
