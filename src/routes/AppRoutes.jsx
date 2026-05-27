@@ -7,6 +7,7 @@ import DashboardPage from "../features/dashboard/pages/DashboardPage";
 import SalesPage from "../features/sales/pages/SalesPage";
 import ProtectedRoute from "../components/common/ProtectedRoute";
 import ProductsPage from "../features/products/pages/ProductsPage";
+import ClientsPage from "../features/clients/pages/ClientsPage";
 
 const AppRoutes = () => {
   return (
@@ -32,6 +33,15 @@ const AppRoutes = () => {
             <ProtectedRoute>
 
               <ProductsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/clients"
+          element={
+            <ProtectedRoute>
+              <ClientsPage/>
             </ProtectedRoute>
           }
         />
